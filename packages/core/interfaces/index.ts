@@ -14,8 +14,10 @@ export interface UseUser
   REGISTER,
   LOGIN,
   LOGOUT,
+  ORDERS
 > {
   user: USER;
+  orders: ORDERS;
   register: REGISTER;
   login: LOGIN;
   logout: LOGOUT;

@@ -1,6 +1,6 @@
 import { ref, Ref, watch, computed } from '@vue/composition-api';
 import { UseUser, AgnosticUserLogin, AgnosticUserRegister } from '@vue-storefront/interfaces';
-import { Customer, CustomerSignMeUpDraft, CustomerSignMeInDraft } from '@vue-storefront/commercetools-api/lib/src/types/GraphQL';
+import { Customer, CustomerSignMeUpDraft, CustomerSignMeInDraft, Order } from '@vue-storefront/commercetools-api/lib/src/types/GraphQL';
 import {
   customerSignMeUp,
   customerSignMeIn,
@@ -9,13 +9,13 @@ import {
 } from '@vue-storefront/commercetools-api';
 import { cart } from './../useCart';
 
-type UserRef = Ref<Customer>
 type RegisterFn = (userData: AgnosticUserRegister) => Promise<void>
 type LoginFn = (userData: AgnosticUserLogin) => Promise<void>
 type LogoutFn = () => Promise<void>
 type UserData = CustomerSignMeUpDraft | CustomerSignMeInDraft
 
-const user: UserRef = ref({});
+const user: Ref<Customer> = ref({});
+const orders: Ref<Order[]> = ref([]);
 const loading = ref(false);
 const error = ref(null);
 const isAuthenticated = computed(() => user.value && Object.keys(user.value).length > 0);
@@ -33,7 +33,7 @@ const authenticate = async (userData: UserData, fn) => {
   loading.value = false;
 };
 
-export default function useUser(): UseUser<UserRef, RegisterFn, LoginFn, LogoutFn> {
+export default function useUser(): UseUser<Ref<Customer>, RegisterFn, LoginFn, LogoutFn, Ref<Order[]>> {
   watch(user, async () => {
     if (isAuthenticated.value) {
       return;
@@ -44,7 +44,9 @@ export default function useUser(): UseUser<UserRef, RegisterFn, LoginFn, LogoutF
     try {
       const profile = await getMe({ customer: true });
       user.value = profile.data.me.customer;
-    } catch (err) {} // eslint-disable-line
+      orders.value = profile.data.me.orders.results;
+    // eslint-disable-next-line no-empty
+    } catch (err) {}
 
     loading.value = false;
   });
@@ -67,6 +69,7 @@ export default function useUser(): UseUser<UserRef, RegisterFn, LoginFn, LogoutF
 
   return {
     user,
+    orders,
     register,
     login,
     logout,
