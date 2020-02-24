@@ -20,17 +20,19 @@ const loadCategories = async (params: UseCategorySearchParams) => {
   return enhancedCategory.data.categories.results;
 };
 
-export default function useCategory(): UseCategory<Category, Search, any, any, any> {
-  const categories = ref([]);
+export default function useCategory(rootState): UseCategory<Category, Search, any, any, any> {
+  const categories = ref(rootState.categories || []);
   const appliedFilters = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
+
   const applyFilter = () => {};
   const clearFilters = () => {};
-  const loading = ref(true);
-  const error = ref(null);
 
   const search = async (params: UseCategorySearchParams) => {
     categories.value = await loadCategories(params);
     loading.value = false;
+    rootState.categories = categories.value;
   };
 
   return {

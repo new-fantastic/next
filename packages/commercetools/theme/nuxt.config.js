@@ -103,7 +103,8 @@ export default {
   plugins: [
     './plugins/commercetools.js',
     './plugins/prismic.js',
-    './plugins/i18n.js'
+    './plugins/i18n.js',
+    './plugins/ssr.js'
   ],
   build: {
     extend(buildConfig) {
